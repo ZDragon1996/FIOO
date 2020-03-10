@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
 setuptools.setup(
      name='customio',  
      version='0.1',
-     scripts=['customio'] ,
+     scripts=['customio.py'] ,
      author="Jialong Zhang",
      author_email="BubbleEcho@protonmail.com",
      description="file and folder utility packages",
@@ -14,7 +14,7 @@ setuptools.setup(
      packages=setuptools.find_packages(),
      classifiers=[
          "Programming Language :: Python :: 3",
-         "License :: OSI Approved :: MIT License",
+         "License :: OSI Approved :: Apache License",
          "Operating System :: OS Independent",
      ],
  )
