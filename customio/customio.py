@@ -8,10 +8,10 @@
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -63,6 +63,7 @@ def file_format(path):
                 carriage_dict['Macintosh(CR)'] += 1
             else:
                 carriage_dict['Unknown'] += 1
+        return max(carriage_dict, key=carriage_dict.get)
 
 
 def is_empty_file(path):
@@ -99,17 +100,10 @@ def print_files(folder):
 def file_size(path):
     '''
     Get file size for a file.
-    usage: input(file path)
-    '''
-    size = os.stat(path).st_size
-    return size
-
-
-def file_size_convert(size):
-    '''
     Convert file size, from Byte to KB, MB, GB, TB
     usage(size)
     '''
+    size = os.stat(path).st_size
     kb = 1024
     mb = pow(1024, 2)
     gb = pow(1024, 3)
@@ -129,6 +123,7 @@ def file_size_convert(size):
     else:
         size_result = math.ceil(size / kb)
         return '{}KB'.format(size_result)
+    return size_result
 
 
 def file_extension(path):
