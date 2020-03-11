@@ -128,7 +128,7 @@ def file_size(path):
 
 def file_extension(path):
     '''
-    get file extension .txt, .csv...
+    get file extension .txt, .csv..
     usage(path)
     '''
     file, file_extension = os.path.splitext(path)
