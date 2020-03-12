@@ -1,4 +1,4 @@
-# CustomIO - Python FileIO and folder utility package
+# FileIO - Python FileIO and folder utility package
 A Helper package for basic file and folder opetions. For example, determine file format for differnt operting systems based on the file carriage return or line feed. Getting a file size, file extension, etcs.
 
 ## Installation
@@ -11,11 +11,11 @@ pip install customio
 ## Usage
 
 ```python
-import customio
+import fileio
 
-customio.file_format(path)  # returns 'Window(LF|CR)'
-customio.is_empty_file(path)  # returns True
-customio.file_size(path)  # returns '16B'
+fileio.file_format(path)  # returns 'Window(LF|CR)'
+fileio.is_empty_file(path)  # returns True
+fileio.file_size(path)  # returns '16B'
 ```
 
 
