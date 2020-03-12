@@ -1,8 +1,0 @@
-README.md
-setup.py
-customio/__init__.py
-customio/customio.py
-customio.egg-info/PKG-INFO
-customio.egg-info/SOURCES.txt
-customio.egg-info/dependency_links.txt
-customio.egg-info/top_level.txt
