@@ -1,21 +1,21 @@
-# FileIO - Python FileIO and folder utility package
+# fioo - Python FileIO and folder Opertation utility package
 A Helper package for basic file and folder opetions. For example, determine file format for differnt operting systems based on the file carriage return or line feed. Getting a file size, file extension, etcs.
 
 ## Installation
 
-Install fileio on your system using: [pip](https://pip.pypa.io/en/stable/)
+Install fioo on your system using: [pip](https://pip.pypa.io/en/stable/)
 
 ```bash
-pip install fileio
+pip install fioo
 ```
 ## Usage
 
 ```python
-import fileio
+import fioo
 
-fileio.file_format(path)  # returns 'Window(LF|CR)'
-fileio.is_empty_file(path)  # returns True
-fileio.file_size(path)  # returns '16B'
+fioo.file_format(path)  # returns 'Window(LF|CR)'
+fioo.is_empty_file(path)  # returns True
+fioo.file_size(path)  # returns '16B'
 ```
 
 

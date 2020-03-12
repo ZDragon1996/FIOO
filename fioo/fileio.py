@@ -51,16 +51,16 @@ def file_format(path):
     with open(path, 'rb') as f:
         # lines = f.readlines() # type: list
         carriage_dict = {
-            'Unknown': 0, 'Window(LF|CR)': 0,
-            'Unix/MacOS(LF)': 0, 'Macintosh(CR)': 0
+            'Unknown': 0, 'Window': 0,
+            'Linux': 0, 'Macintosh': 0
             }
         for index, line in enumerate(f, 1):
             if b'\r\n' in line:
-                carriage_dict['Window(LF|CR)'] += 1
+                carriage_dict['Window'] += 1
             elif b'\n' in line:
-                carriage_dict['Unix/MacOS(LF)'] += 1
+                carriage_dict['Linux'] += 1
             elif b'\r' in line:
-                carriage_dict['Macintosh(CR)'] += 1
+                carriage_dict['Macintosh'] += 1
             else:
                 carriage_dict['Unknown'] += 1
         return max(carriage_dict, key=carriage_dict.get)
