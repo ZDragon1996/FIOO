@@ -3,10 +3,10 @@ A Helper package for basic file and folder opetions. For example, determine file
 
 ## Installation
 
-Install customio on your system using: [pip](https://pip.pypa.io/en/stable/)
+Install fileio on your system using: [pip](https://pip.pypa.io/en/stable/)
 
 ```bash
-pip install customio
+pip install fileio
 ```
 ## Usage
 
