@@ -13,10 +13,11 @@ pip install fioo
 ```python
 import fioo
 
-fioo.file_format(path)  # returns 'Window'
-fioo.is_empty_file(path)  # returns True
-fioo.file_size(path)  # returns '16B'
+fioo.file_format(path)  # return 'Window'
+fioo.is_empty_file(path)  # return True
+fioo.file_size(path)  # return '16B'
 fioo.compare(path1,path2) # will produce diff files
+fioo.deli(path) # return ','
 ```
 
 
