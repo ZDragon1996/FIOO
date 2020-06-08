@@ -37,15 +37,28 @@
 #    print_files(folder) -> print all files in a folder
 #    size(path) -> get file size(byte)
 #    ext(path) -> get file extension
+#    compare(folder1, folder2) -> generate diff file in the folder2 location
+#    deli(path) -> get file delimter, useful for csv file
 # ===========================================================
 
 # ====================update info============================
-# 4/26/2020 - FIOO class, methods rework, more condition check
-# 5/20/2020 - fioobase64 v1
-# 6/03/2020 - fioo_v0.3 release, compare function
+# 4/26/2020:
+# FIOO class, methods rework, more condition check
+# 5/20/2020:
+# fioobase64 v1
+# 6/03/2020:
+# fioo_v0.3 release, compare function
+# 6/07/2020:
+# docstring format(make it easier to read in visual studio)
+# add deli function
+# 
 # ===========================================================
+
+
 import os
 import math
+import csv
+from ast import literal_eval
 #import fioobase64 
 
 
@@ -53,7 +66,7 @@ import math
 # helper methods:
 def _isdir(path):
     '''
-    helper method within the file,
+    helper method within the file
     return True is the path is dir, otherwize False
     '''
     return os.path.isdir(path)
@@ -109,13 +122,16 @@ class FIOO():
 # fformat method
 def fformat(path, max_chunk=300000, check_all=True):
     '''
-    Return corresponding file format for a file
-    (loop through all the lines, get maximum matched dictionary key)
-    usage: format(file path)
-    Format Usage:
-    'Window'  -> (LF|CR) for Window MS(dos)
-    'Linux' -> (LF) for Linux, MacOS
-    'Macintosh' -> (CR) for Older version of MacOS
+    Return corresponding file format for a file\n
+    (loop through all the lines, get maximum matched dictionary key)\n
+    Usage: fformat(file path)\n
+    Keyword arguments:\n
+    max_chunk -- size for read lines in the file\n
+    check_all -- check entire file\n
+    Return str:\n
+    'Window'  -> (LF|CR) for Window MS(dos)\n
+    'Linux' -> (LF) for Linux, MacOS\n
+    'Macintosh' -> (CR) for Older version of MacOS\n
     'Unknown' -> Undefined format
     '''
     if _isdir(path):
@@ -148,9 +164,11 @@ def fformat(path, max_chunk=300000, check_all=True):
 
 def size(path):
     '''
-    Get file size for a file or folder(also the sub diretory).
-    Convert file size, from Byte to KB, MB, GB, TB
-    usage: size(folderpath) or size(filepath)
+    Get file size for a file or folder(also the sub diretory).\n
+    Convert file size, from Byte to KB, MB, GB, TB(whole number)\n
+    Usage: size(folderpath) or size(filepath)\n
+    Return str:\n
+    1KB, 1MB, 1GB
     '''
     size = os.stat(path).st_size
     kb = 1024
@@ -184,8 +202,12 @@ def size(path):
 
 def ext(path, dot=False):
     '''
-    get file extension .txt, .csv...
-    usage: file_(path)
+    get file extension .txt, .csv...\n
+    Keyword arguments:\n
+    dot -- if this is true, will output dot in front of the extension\n
+    Usage: file_(path)\n
+    Return str:\n
+    .txt or txt
     '''
     if _isdir(path):
         return 'detect folder path instead of file path'
@@ -199,9 +221,18 @@ def ext(path, dot=False):
 
 def file_check(path, f_line=True, l_line=True, all_lines=False, contain='', __valid=True, __print=True):
     '''
-    check if the file contain space at the begining and the end.
-    usage:
-    file_sapce(path)
+    check if the file contain spaces at the begining, at the end, or in between.\n
+    Usage:\n
+    file_sapce(path)\n
+    Keyword arguments:\n
+    f_line -- first line check, set to False if ignore\n
+    l_line -- last line check, set to False if ignore\n
+    all_lines -- will check spaces for entire file, default: False\n
+    __print -- print all blank lines in the file, default: True\n
+    Return str:\n
+    'first line is blank'\n
+    '!file is good, no blank lines for all lines'\n
+    ...
     '''
     if _isdir(path):
         return 'detect folder path instead of file path'
@@ -240,10 +271,8 @@ def file_check(path, f_line=True, l_line=True, all_lines=False, contain='', __va
 
 def print_empty_files(path):
     '''
-    Print out all the files details in the folder
-    usage: input(folder path)
-    True -> file is empty
-    False -> file is not empty
+    Print out all the files details in the folder\n
+    Usage: input(folder path)
     '''
     if not _isdir(path):
         print('detect file path instead of folder path')
@@ -256,15 +285,47 @@ def print_empty_files(path):
 
 def print_files(path):
     '''
-    Print out all the files in a folder
-    usage: input(folderpath)
+    print out all the files in a folder\n
+    Usage: input(folderpath)
     '''
     if not _isdir(path):
         return 'detect file path instead of folder path'
     for file in os.listdir(path):
         print(file)
+        
+def deli(path):
+    '''
+    determine delimeter for a file by using csv module\n
+    method will not able to detemrine if file contains more than 1 delimeter\n
+    read 1024 byte from the file\n
+    Return str:\n
+    ',' or '|' or ';' or '|' or '{}' or '/\'
+    '''
+    sniff_size = 1024
+    if _isdir(path):
+        return 'detect folder path instead of file path'
+    with open(path, 'rt') as f:
+        sn = csv.Sniffer()
+        try:
+            sniff = sn.sniff(f.read(sniff_size))
+            print(sniff.delimiter)
+        except Exception as e:
+            print('{}, more than 1 delimter found in the file'.format(e))
+       
 
-def __gen_diff_file(filename1, filename2, folder1, folder2):
+# file compare seciton:
+
+# def __sort_any_file_with_keys(file, sortkeys=[]):
+#     with open(r'{}'.format(file)) as f:
+#         lines = f.read().splitlines()[1:]
+
+#         sorted_lines = sorted(lines, key= lambda k: k[0])
+#         print(b)
+#         print(sorted_lines)
+
+
+
+def _gen_diff_file(filename1, filename2, folder1, folder2):
     with open(
         r'{}\{}'.format(folder1, filename1), 'rt', newline='') as f, open(
         r'{}\{}'.format(folder2, filename2), 'rt', newline=''
@@ -276,36 +337,16 @@ def __gen_diff_file(filename1, filename2, folder1, folder2):
 
         lines2_moredata = [d for d in lines2 if d not in lines1]
         lines1_moredata = [d for d in lines1 if d not in lines2]
-
-
-        print(lines1)
-        print(lines2)
-
+        print('compare base:{} with actual: {}'.format(filename1, filename2))
 
     with open(r'{}\diff_{}'.format(folder2, filename1), 'wt', newline='') as wf:
-        # for lineno, line2 in enumerate(lines2, 1):
-        #     try:
-        #         if line2 not in lines1:
-        #             wf.write(
-        #                 '{} -> base: ({}) | {}\n'
-        #                 .format(
-        #                     lineno, lines1[lineno-1],
-        #                     line2
-        #                     )
-        #                 )
-        #     except IndexError as e:
-        #         wf.write(
-        #             '[lineno{}]additional: -> {} \n'
-        #             .format(lineno, line2)
-        #             )
-
         filter_matched = list(set(lines1) - set(lines2))
-        print(filter_matched)
+        wf.write('{}\n'.format(lines1[0]))
         for lineno, line2 in enumerate(lines2_moredata, 1):
                 try:
                     if line2 not in lines1:
                         wf.write(
-                            'base:   {} \nactual: {}\n ======================================= \n'
+                            'base:   {} \nactual: {}\n======================================= \n'
                             .format(
                                 filter_matched[lineno-1],
                                 line2
@@ -341,14 +382,15 @@ def __gen_diff_file(filename1, filename2, folder1, folder2):
 
 def compare(folder1, folder2):
     '''
-    folder1: path, folder2: path
-    compare files in folder1 with folder2, the files name should be the same.
-    result will be generated to folder2 path
+    compare files in folder1 with folder2, the files name should be the same.\n
+    result will be generated to folder2 path\n
+    folder1: path, folder2: path\n
+    Usage:compare(folder1path, folder2path)
     '''
     for file1 in os.listdir(folder1):
         for file2 in os.listdir(folder2):
             try:
                 if file1 == file2:
-                    __gen_diff_file(file1, file2, folder1, folder2)
+                    _gen_diff_file(file1, file2, folder1, folder2)
             except IndexError as e:
                 print('{} -> {}'.format(e, file2))
