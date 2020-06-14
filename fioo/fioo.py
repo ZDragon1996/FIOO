@@ -47,20 +47,21 @@
 # 5/20/2020:
 # fioobase64 v1
 # 6/03/2020:
-# fioo_v0.3 release, compare function
+# compare function
+# fioo_v0.3 release
 # 6/07/2020:
 # docstring format(make it easier to read in visual studio)
 # add deli function
-# 
+# 6/13/2020:
+# improve the compare function, display warning message for file not find in first folder,
+# now the diff file generated csv file instead of txt, logic fixed for the compare function
+# note: when compare, does not skip columns - will implement in the future update
+# fioo_v0.4 release
 # ===========================================================
 
 
 import os
 import math
-import csv
-from ast import literal_eval
-#import fioobase64 
-
 
 
 # helper methods:
@@ -78,6 +79,16 @@ def _is_empty_file(path):
     if not _isdir(path):
         with open(path, 'rb') as f:
             return f.readlines() == []
+
+# decorator, run function once only
+def __run_once(m):
+    def fun(*args, **kwargs):
+        if not fun.has_run:
+            fun.has_run = True
+            return m(*args, **kwargs)
+    fun.has_run = False
+    return fun
+
 # end helper methods
 
 
@@ -119,8 +130,24 @@ class FIOO():
     def ext(self):
         return ext(self.path)
 
+    @property
+    def file_check(self):
+        return file_check(self.path)
+
+    def file_check(self, **kwargs):
+        return file_check(self.path, **kwargs)
+
+    @property
+    def deli(self):
+        return deli(self.path)
+    
+    def compare(self,path1, path2):
+        compare(path1, path2)
+    
+# ========================END FIOO Class========================
+
 # fformat method
-def fformat(path, max_chunk=300000, check_all=True):
+def fformat(path, max_chunk=300000, check_all=False):
     '''
     Return corresponding file format for a file\n
     (loop through all the lines, get maximum matched dictionary key)\n
@@ -242,6 +269,7 @@ def file_check(path, f_line=True, l_line=True, all_lines=False, contain='', __va
         data = list(f)
         first_line = data[0]
         last_line = data[-1]
+        message = ""
         if all_lines:
             for lineno, line in enumerate(data, 1):
                 if line == b'\r\n':
@@ -249,26 +277,27 @@ def file_check(path, f_line=True, l_line=True, all_lines=False, contain='', __va
                     if __print:
                         print('[line{}] -> blank line'.format(lineno))
         if not f_line and not l_line:
-            return 'nothing to check, both first and last line condition is false'
+            message = 'nothing to check, both first and last line condition is false'
         elif all_lines and __valid:
-            return 'detect blank lines with the file'
+            message = 'detect blank lines with the file'
         elif f_line and l_line and first_line == b'\r\n' and last_line == b'\r\n':
-            return 'first and last line are both blank line'
+            message = 'first and last line are both blank line'
         elif f_line and l_line and first_line == b'\r\n' and last_line != b'\r\n':
-            return 'first line is blank'
+            message = 'first line is blank'
         elif f_line and l_line and first_line != b'\r\n' and last_line == b'\r\n':
-            return 'last line is blank'
+            message = 'last line is blank'
         elif f_line and not l_line and first_line == b'\r\n' and last_line == b'\r\n':
-            return 'first line is blank'
+            message = 'first line is blank'
         elif not f_line and l_line and first_line == b'\r\n' and last_line == b'\r\n':
-            return 'last line is blank'
+            message = 'last line is blank'
         elif not all_lines and f_line and l_line and first_line != b'\r\n' and last_line != b'\r\n':
-            return 'file is good, no blank lines'
+            message = 'file is good, no blank lines'
         elif all_lines and __valid and f_line and l_line and first_line != b'\r\n' and last_line != b'\r\n':
-            return '!file is good, no blank lines for all lines'
+            message = '!file is good, no blank lines for all lines'
         else:
-            'unhandle condition'
-
+            message = 'unhandle condition'
+        print(message)
+        return message
 def print_empty_files(path):
     '''
     Print out all the files details in the folder\n
@@ -308,7 +337,10 @@ def deli(path):
         sn = csv.Sniffer()
         try:
             sniff = sn.sniff(f.read(sniff_size))
-            print(sniff.delimiter)
+            if sniff.delimiter == ' ':
+                return 'space'
+            else:
+                return sniff.delimiter
         except Exception as e:
             print('{}, more than 1 delimter found in the file'.format(e))
        
@@ -330,23 +362,32 @@ def _gen_diff_file(filename1, filename2, folder1, folder2):
         r'{}\{}'.format(folder1, filename1), 'rt', newline='') as f, open(
         r'{}\{}'.format(folder2, filename2), 'rt', newline=''
         ) as f2:
-        #lines1 = f.readlines() # realines is list, but contain \n
-        #lines2 = f2.readlines() # should avoid using realines
+        mismatch_count = 0
+        # lines1 = f.readlines() # realines is list, but contain \n
+        # lines2 = f2.readlines() # should avoid using realines
+        # sorted both files the same way
+        f1_header = next(f)
+        f2_header = next(f2)
         lines1 = sorted(f.read().replace(" ",'').splitlines())
         lines2 = sorted(f2.read().replace(" ",'').splitlines())
+        #print(lines1)
+        #print(lines2)
 
         lines2_moredata = [d for d in lines2 if d not in lines1]
         lines1_moredata = [d for d in lines1 if d not in lines2]
         print('compare base:{} with actual: {}'.format(filename1, filename2))
+    f_ext = ext(r'{}\{}'.format(folder2, filename1),dot=True) # .txt
+    base_file_name = os.path.basename(os.path.join(folder2, filename1)).rstrip(f_ext)
 
-    with open(r'{}\diff_{}'.format(folder2, filename1), 'wt', newline='') as wf:
-        filter_matched = list(set(lines1) - set(lines2))
-        wf.write('{}\n'.format(lines1[0]))
+    with open('{}\diff_{}.csv'.format(folder2, base_file_name), 'wt', newline='') as wf:
+        filter_matched = sorted(list(set(lines1) - set(lines2)))
+        wf.write('{}'.format(f2_header))
         for lineno, line2 in enumerate(lines2_moredata, 1):
                 try:
                     if line2 not in lines1:
+                        mismatch_count += 1
                         wf.write(
-                            'base:   {} \nactual: {}\n======================================= \n'
+                            'base:   {} \nactual: {}\n \n'
                             .format(
                                 filter_matched[lineno-1],
                                 line2
@@ -366,19 +407,19 @@ def _gen_diff_file(filename1, filename2, folder1, folder2):
                     wf.write(
                         'additional: -> {}\n'
                         .format(line2))
-
         if len(lines1) == len(lines2):
             wf.write(
                 'final <-> records count are matched!!\n'
-                )          
-        # wf.write(
-        #     'final <-> missing record count: {}\n'
-        #     .format(len(lines1) - len(lines2))
-        #     )  
-        # wf.write(
-        #     'final <-> additional record count: {}\n'
-        #     .format(len(lines2) - len(lines1))
-        #     )
+                )    
+        if len(lines1) == len(lines2) and mismatch_count == 0:
+            wf.write(
+                'final <-> !! All records are perfectly matched!!\n'
+                )
+
+
+def _missing_file_message(file2):
+    info_message = 'warning!! unable to find {} not in first folder'.format(file2)
+    print(info_message)
 
 def compare(folder1, folder2):
     '''
@@ -389,8 +430,11 @@ def compare(folder1, folder2):
     '''
     for file1 in os.listdir(folder1):
         for file2 in os.listdir(folder2):
+            info_message = ""
             try:
                 if file1 == file2:
                     _gen_diff_file(file1, file2, folder1, folder2)
+                elif not file2.startswith('diff_') and file2 not in os.listdir(folder1):
+                    _missing_file_message(file2)
             except IndexError as e:
                 print('{} -> {}'.format(e, file2))
